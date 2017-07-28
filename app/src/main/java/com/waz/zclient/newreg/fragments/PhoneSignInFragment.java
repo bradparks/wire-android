@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import com.waz.service.ZMessaging;
+import com.waz.zclient.AppEntryController;
 import com.waz.zclient.BaseActivity;
 import com.waz.zclient.R;
 import com.waz.zclient.controllers.navigation.Page;
@@ -250,7 +251,7 @@ public class PhoneSignInFragment extends BaseFragment<PhoneSignInFragment.Contai
     }
 
     private void openEmailSignIn() {
-        getStoreFactory().getAppEntryStore().setState(AppEntryState.EMAIL_SIGN_IN);
+        ((BaseActivity) getActivity()).injectJava(AppEntryController.class).goToLoginEmail();
     }
 
     @Override
@@ -311,7 +312,7 @@ public class PhoneSignInFragment extends BaseFragment<PhoneSignInFragment.Contai
     @Override
     public void onItemSelected(int pos) {
         if (pos == TabPages.CREATE_ACCOUNT) {
-            goBack();
+            ((BaseActivity) getActivity()).injectJava(AppEntryController.class).goToRegisterEmail();
         }
     }
 

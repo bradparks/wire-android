@@ -29,7 +29,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
+
+import com.waz.api.impl.EmailCredentials;
 import com.waz.service.ZMessaging;
+import com.waz.zclient.AppEntryController;
 import com.waz.zclient.BaseActivity;
 import com.waz.zclient.R;
 import com.waz.zclient.controllers.navigation.Page;
@@ -258,7 +261,7 @@ public class EmailSignInFragment extends BaseFragment<EmailSignInFragment.Contai
                 onPasswordResetButtonClicked();
                 break;
             case R.id.ttv__new_reg__sign_in__go_to__phone:
-                goToSignInPhone();
+                ((BaseActivity) getActivity()).injectJava(AppEntryController.class).goToLoginPhone();
                 break;
             case R.id.pcb__signin__email:
                 signIn();
@@ -270,10 +273,7 @@ public class EmailSignInFragment extends BaseFragment<EmailSignInFragment.Contai
         getControllerFactory().getLoadTimeLoggerController().loginPressed();
         getContainer().enableProgress(true);
         KeyboardUtils.hideKeyboard(getActivity());
-        getStoreFactory().getAppEntryStore()
-                         .signInWithEmail(guidedEditTextEmail.getText(),
-                                          guidedEditTextPassword.getText(),
-                                          errorCallback);
+        ((BaseActivity) getActivity()).injectJava(AppEntryController.class).loginEmail(guidedEditTextEmail.getText(), guidedEditTextPassword.getText(), errorCallback);
     }
 
     private void goBack() {
@@ -291,11 +291,7 @@ public class EmailSignInFragment extends BaseFragment<EmailSignInFragment.Contai
     @Override
     public void onItemSelected(int pos) {
         if (pos == TabPages.CREATE_ACCOUNT) {
-            if (LayoutSpec.isPhone(getActivity())) {
-                goBack();
-            } else {
-                getStoreFactory().getAppEntryStore().setState(AppEntryState.EMAIL_REGISTER);
-            }
+            ((BaseActivity) getActivity()).injectJava(AppEntryController.class).goToRegisterEmail();
         }
     }
 

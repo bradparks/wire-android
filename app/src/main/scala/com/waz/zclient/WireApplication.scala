@@ -128,6 +128,7 @@ object WireApplication {
     bind [UserAccountsController]    to new UserAccountsController()
     bind [UiStorage]                 to new UiStorage()
     bind [BackStackNavigator]        to new BackStackNavigator()
+    bind [AppEntryController]        to new AppEntryController()
 
     /**
       * Since tracking controllers will immediately instantiate other necessary controllers, we keep them separated

@@ -28,6 +28,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
+
+import com.waz.zclient.AppEntryController;
+import com.waz.zclient.BaseActivity;
 import com.waz.zclient.R;
 import com.waz.zclient.controllers.navigation.Page;
 import com.waz.zclient.core.stores.appentry.AppEntryError;
@@ -188,7 +191,7 @@ public class EmailRegisterFragment extends BaseFragment<EmailRegisterFragment.Co
 
     private void onBackClicked() {
         KeyboardUtils.hideKeyboard(getActivity());
-        getStoreFactory().getAppEntryStore().onBackPressed();
+        ((BaseActivity) getActivity()).injectJava(AppEntryController.class).goToLoginEmail();
     }
 
     private void onRegisterClicked() {
@@ -196,12 +199,11 @@ public class EmailRegisterFragment extends BaseFragment<EmailRegisterFragment.Co
         getContainer().enableProgress(true);
         KeyboardUtils.hideKeyboard(getActivity());
 
-        getStoreFactory().getAppEntryStore()
-                         .registerWithEmail(textViewEmail.getText().toString(),
-                                            textViewPassword.getText().toString(),
-                                            textViewName.getText().toString(),
-                                            getControllerFactory().getAccentColorController().getAccentColor(),
-                                            errorCallback);
+        ((BaseActivity) getActivity()).injectJava(AppEntryController.class).registerEmail(
+            textViewName.getText().toString(),
+            textViewEmail.getText().toString(),
+            textViewPassword.getText().toString(),
+            errorCallback);
     }
 
     @Override

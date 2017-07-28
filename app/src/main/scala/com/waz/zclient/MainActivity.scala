@@ -27,6 +27,7 @@ import android.os.{Build, Bundle, Handler}
 import android.support.v4.app.Fragment
 import android.text.TextUtils
 import com.localytics.android.Localytics
+import com.waz.ZLog
 import com.waz.ZLog.ImplicitTag._
 import com.waz.ZLog.{error, info, warn}
 import com.waz.api.{NetworkMode, _}
@@ -35,6 +36,7 @@ import com.waz.service.ZMessaging
 import com.waz.threading.Threading
 import com.waz.utils.events.Signal
 import com.waz.utils.returning
+import com.waz.zclient.AppEntryController.{EnterAppStage, Unknown}
 import com.waz.zclient.calling.CallingActivity
 import com.waz.zclient.calling.controllers.CallPermissionsController
 import com.waz.zclient.controllers.accentcolor.AccentColorChangeRequester
@@ -91,6 +93,7 @@ class MainActivity extends BaseActivity
   lazy val callPermissionController = inject[CallPermissionsController]
   lazy val selectionController      = inject[SelectionController]
   lazy val userAccountsController   = inject[UserAccountsController]
+  lazy val appEntryController       = inject[AppEntryController]
 
   override def onAttachedToWindow() = {
     super.onAttachedToWindow()
@@ -301,30 +304,12 @@ class MainActivity extends BaseActivity
       onPasswordWasReset()
       return
     }
-    // step 2 - no one is logged in
-    ZMessaging.currentAccounts.activeAccountPref().map {
-      case Some(account) =>
-      case None => {
-        // finally - no one is logged in
-        error("No user is logged in")
-        openSignUpPage()
-      }
-    }(Threading.Ui)
 
-    import com.waz.api.ClientRegistrationState._
-    self.getClientRegistrationState match {
-      case PASSWORD_MISSING =>
-        if (!TextUtils.isEmpty(self.getEmail)) {
-          startActivity(new Intent(this, classOf[OTRSignInActivity]))
-          finish()
-          return
-        }
-        else getStoreFactory.getZMessagingApiStore.getApi.logout()
-      case LIMIT_REACHED =>
-        showUnableToRegisterOtrClientDialog()
-      case _ =>
+    appEntryController.entryStage.onUi {
+      case EnterAppStage => onUserLoggedInAndVerified(self)
+      case Unknown => ZLog.verbose("Unknown state")
+      case _ => openSignUpPage()
     }
-    onUserLoggedInAndVerified(self)
   }
 
   private def onPasswordWasReset() = {
